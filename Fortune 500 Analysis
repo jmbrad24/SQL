@@ -55,3 +55,36 @@ VALUES
     ('Company II', 'Telecommunications', 110.5, 2000, 1, 21, 12, 4.9),
     ('Company JJ', 'Manufacturing', 370.0, 3100, 1, 20, 12, 7.6),
     ('Company KK', 'Healthcare', 150.2, 3400, 0, 16, 8, 5.3);
+
+# Analysis: 
+
+# Assign all the companies as "Great", "Good", or "Okay" based on the paid time off days. 
+
+SELECT company_name,paid_time_off_days AS PTO
+ CASE 
+   WHEN paid_time_off_days>=20 THEN 'Great'
+   WHEN paid_time_off_days>=15 THEN 'Good'
+   ELSE 'Okay'
+ END AS PTO
+ FROM fortune_companies
+;
+
+# Which industries have an average revenue of at least $200 Billion, and what are their avg revenues?
+SELECT industry, ROUND(AVG(revenue),1) as avg_revenue_billions
+FROM fortune_companies
+GROUP BY industry
+HAVING avg_revenue_billions>=200
+;
+
+# Which companies have healthcare benefits *and* at least 20 paid time off days?
+SELECT company_name
+FROM fortune_companies
+WHERE paid_time_off_days>20
+AND healthcare_benefits=1
+;
+
+# Which company in the Technology industry has the most revenue, and what's their revenue? 
+SELECT company_name, MAX(revenue)
+FROM fortune_companies
+WHERE industry = 'Technology'
+;
