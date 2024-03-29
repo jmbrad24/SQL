@@ -1,0 +1,109 @@
+#This project analyzes a music store database to deliver insights on financial performance, music genre preferences, top-selling tracks, and customer spending behaviors.
+
+#1 Which country bought the most music and what was the most popular genre?
+
+SELECT 
+    c.Country,
+    g.Name AS Most_Popular_Genre,
+    COUNT(il.TrackId) AS Total_Tracks_Purchased
+FROM 
+    chinook.customers c
+JOIN 
+    chinook.invoices i ON c.CustomerId = i.CustomerId
+JOIN 
+    chinook.invoice_items il ON i.InvoiceId = il.InvoiceId
+JOIN 
+    chinook.tracks t ON il.TrackId = t.TrackId
+JOIN 
+    chinook.genres g ON t.GenreId = g.GenreId
+GROUP BY 
+    c.Country
+ORDER BY 
+    Total_Tracks_Purchased DESC
+LIMIT 1
+;
+
+#2 Show customers and total number of purchases for each customer from Germany.
+
+SELECT FirstName, LastName, COUNT(il.Quantity) AS Total_Purchased 
+FROM customers c 
+JOIN
+     chinook.invoices i ON c.CustomerId=i.CustomerId
+JOIN 
+     chinook.invoice_items il ON i.invoiceId=il.invoiceID
+WHERE Country='Germany' 
+GROUP BY c.CustomerId
+;
+
+#3 Show all employees, their titles, and who they report to.
+
+SELECT 
+    e.FirstName || ' ' || e.LastName AS Employee, 
+    e.Title AS Employee_Title, 
+    s.FirstName || ' ' || s.LastName AS Supervisor
+FROM 
+    chinook.employees e
+JOIN
+    chinook.employees s ON e.ReportsTo = s.EmployeeId
+;
+    
+#4 Provide a query that shows all Jazz Tracks. Include the Album name and Media type.
+SELECT t.Name AS Track_Name,
+       a.Title AS Album_Name,
+       m.Name AS Media_Type,
+       g.Name AS Genre 
+FROM chinook.tracks t
+     
+JOIN 
+     chinook.media_types m ON t.MediaTypeId=m.MediaTypeId 
+JOIN 
+     chinook.genres g ON t.GenreId=g.GenreId
+JOIN
+     chinook.albums a ON t.AlbumId=a.AlbumId
+WHERE g.Name='Jazz'
+; 
+
+
+#5 List the total in sales for each year.
+SELECT 
+    SUBSTR(InvoiceDate, 1, 4) AS Year,
+    ROUND(SUM(Total),2) AS TotalSales
+FROM 
+    chinook.invoices 
+GROUP BY 
+    Year
+;
+    
+#6 Which sales agent made the most sales in 2010?
+SELECT 
+     e.FirstName || ' ' || e.LastName AS Employee,
+     ROUND(SUM(i.Total),2) AS TotalSales
+FROM chinook.employees e
+JOIN 
+     chinook.customers c ON e.EmployeeId=c.SupportRepId
+JOIN chinook.invoices i ON c.CustomerId=i.CustomerId
+WHERE Title='Sales Support Agent' 
+AND InvoiceDate like '2010%'
+GROUP BY Employee
+ORDER BY (ROUND(SUM(i.Total),2)) desc
+LIMIT 1
+;
+
+#7 Show Customers (their full names, customer ID, and country) who are not in the US
+SELECT FirstName || ' ' || LastName AS Customer,
+       CustomerId, 
+       Country
+FROM chinook.customers 
+WHERE Country <> 'USA'
+;
+    
+#8 Write a query that includes the purchased track name AND artist name with each invoice line ID.
+SELECT ar.name as Artist, t.Name as Track, i.InvoiceLineId
+FROM chinook.Invoice_items i
+LEFT JOIN chinook.tracks t 
+ON i.TrackID=t.TrackID
+INNER JOIN chinook.albums a
+ON a.AlbumID=t.AlbumID
+LEFT JOIN chinook.artists ar
+ON ar.ArtistID=a.ArtistID
+;
